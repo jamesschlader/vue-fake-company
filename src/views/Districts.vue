@@ -1,7 +1,7 @@
 <template>
     <div class="uk-container">
         <Title
-        v-bind:title="'Home'"
+        v-bind:title="'Districts'"
         ></Title>
     </div>
 </template>
@@ -10,7 +10,7 @@
     import Title from "@/components/Title";
 
     export default {
-        name: "Home",
+        name: "Ditricts",
         components: {
             Title
         }

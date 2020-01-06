@@ -1,16 +1,15 @@
 <template>
     <div class="uk-container">
         <Title
-        v-bind:title="'Home'"
+        v-bind:title="'Departments'"
         ></Title>
     </div>
 </template>
 
 <script>
     import Title from "@/components/Title";
-
     export default {
-        name: "Home",
+        name: "Departments",
         components: {
             Title
         }
