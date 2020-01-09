@@ -2,6 +2,7 @@
     <div class="uk-container">
         <DisplayMenu
         v-bind:items="items"
+        v-bind:activeItem="active"
         v-on:set-active="setActive"
         ></DisplayMenu>
         <div v-show="active === 'display'">
@@ -23,6 +24,7 @@
         </div>
         <div v-show="active === 'create'">
             <h1>Apply</h1>
+            <ApplicantApplication v-on:recruit-applicant="recruitOne"></ApplicantApplication>
         </div>
         <div v-show="active === 'details'">
             <h1>Applicant Details</h1>
@@ -40,12 +42,13 @@
     import Title from "@/components/Title"
     import blankApplicant from "@/utils/blankApplicant";;
     import DisplayMenu from "@/components/DisplayMenu";
+    import ApplicantApplication from "@/components/ApplicantApplication";
 
     export default {
         name: "DisplayApplicants",
         components: {
             DisplayMenu,
-            ApplicantThumbnail, ApplicantDetails, Title
+            ApplicantThumbnail, ApplicantDetails, Title, ApplicantApplication
         },
         data() {
             return {
@@ -55,10 +58,14 @@
             }
         },
         methods: {
-            ...mapActions(["fetchAllApplicants"]),
+            ...mapActions(["fetchAllApplicants", "recruitApplicant"]),
             setActive(message, obj = blankApplicant) {
                 this.active = message;
                 this.selected = obj
+            },
+            recruitOne(){
+                this.setActive("display");
+                this.recruitApplicant();
             }
         },
         created() {

@@ -35,5 +35,7 @@
 </script>
 
 <style scoped>
-
+    *{
+        font-family: Raleway;
+    }
 </style>

@@ -2,6 +2,7 @@
     <div class="uk-container">
         <DisplayMenu
                 v-bind:items="items"
+                v-bind:activeItem="active"
                 v-on:set-active="setActive"
         ></DisplayMenu>
 
@@ -68,7 +69,7 @@
             return {
                 active: "display",
                 selected: blankApplicant,
-                items: ["display", "scopes", "positions"],
+                items: ["display", "scopes", "positions", "hire"],
                 isCreate: false,
                 positionsDesc: true,
                 positionSortBy: "title"
