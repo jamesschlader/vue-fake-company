@@ -4,54 +4,39 @@
                 v-bind:items="items"
                 v-on:set-active="setActive"
         ></DisplayMenu>
+
         <div v-show="active === 'display'">
-            <Title
-                    v-bind:title="'Display Employees'"
-            ></Title>
-            <div>
-                <applicant-thumbnail
-                        v-bind:key="applicant.image"
-                        v-for="applicant in getAllEmployees.filter(item=>{
-                        return !item.image
-                    }).sort((a,b)=>{
-                    return b.assessment - a.assessment
-                    })"
-                        v-bind:applicant="applicant"
-                        v-on:select-active="setActive('details', applicant)"
-                ></applicant-thumbnail>
-            </div>
+            <EmployeeList
+                    v-bind:employees="getAllEmployees"
+                    v-on:set-active="setActive"
+            ></EmployeeList>
         </div>
+
         <div v-show="active === 'details'">
             <h1>Employee Details</h1>
             <ApplicantDetails
                     v-bind:applicant="this.selected"
             ></ApplicantDetails>
         </div>
+
         <div v-show="active === 'scopes'">
-            <Title
-                    v-bind:title="'Scopes'"
-            ></Title>
-            <button class="uk-button uk-button-primary"
-                    v-on:click.prevent="openInput"
-            ><span uk-icon="plus"></span></button>
-            <div
-                    v-show="isCreate"
-            >
-                <input
-                        type="text"
-                        class="uk-input uk-form-width-large"
-                        v-model="name" placeholder="new scope">
-                <input
-                        type="submit"
-                        class="uk-input uk-form-width-small uk-button-secondary"
-                        v-on:click.prevent="addOne">
-            </div>
-            <DisplayScopes
+            <ScopesList
                     v-bind:scopes="getAllScopes"
+                    v-bind:isCreate="isCreate"
+                    v-on:open-input="openInput"
+                    v-on:add-one="addOne"
                     v-on:add-scope="addScope"
                     v-on:delete-scope="deleteScope"
-                    v-on:save-edit="editScope"
-            ></DisplayScopes>
+                    v-on:edit-scope="editScope"
+            >
+            </ScopesList>
+        </div>
+
+        <div v-show="active === 'positions'">
+            <PositionView
+                    v-bind:positions="getAllPositions.map(item=>item).sort(sortPositions)"
+                    v-on:update-position-sort="updatePositionSort"
+            ></PositionView>
         </div>
     </div>
 </template>
@@ -64,40 +49,87 @@
     import ApplicantDetails from "@/components/ApplicantDetails";
     import ApplicantThumbnail from "@/components/ApplicantThumbnail";
     import DisplayScopes from "@/components/DisplayScopes";
+    import EmployeeList from "@/components/EmployeeList";
+    import ScopesList from "@/components/ScopesList";
+    import PositionView from "@/components/PositionView";
 
     export default {
         name: "DisplayEmployees",
-        components: { ApplicantThumbnail, ApplicantDetails, DisplayMenu, Title, DisplayScopes },
+        components: {
+            EmployeeList,
+            ApplicantThumbnail,
+            ApplicantDetails,
+            DisplayMenu, Title,
+            DisplayScopes,
+            ScopesList,
+            PositionView
+        },
         data() {
             return {
                 active: "display",
                 selected: blankApplicant,
-                items: ["display", "scopes"],
+                items: ["display", "scopes", "positions"],
                 isCreate: false,
-                name: ""
+                positionsDesc: true,
+                positionSortBy: "title"
             };
         },
         methods: {
-            ...mapActions(["fetchAllEmployees", "fetchAllScopes", "addScope", "deleteScope", "editScope"]),
+            ...mapActions(["fetchAllEmployees",
+                              "fetchAllScopes",
+                              "addScope",
+                              "deleteScope",
+                              "editScope",
+                              "fetchAllPositions"
+                          ]),
             setActive(message, obj = blankApplicant) {
                 this.active = message;
                 this.selected = obj;
             },
-            addOne() {
-                const name = this.name;
-                this.addScope({name});
-                this.name = "";
+            addOne(scope) {
+                this.addScope(scope);
                 this.isCreate = !this.isCreate;
             },
             openInput() {
                 this.isCreate = true;
+            },
+            updatePositionSort(heading, desc) {
+                this.positionSortBy = heading;
+                this.positionsDesc = desc;
+            },
+            sortPositions(a, b) {
+                const sortText = (a, b) => {
+
+                    if (a[this.positionSortBy.toLowerCase()] > b[this.positionSortBy.toLowerCase()]) {
+                        return -1;
+                    }
+                    if (b[this.positionSortBy.toLowerCase()] > a[this.positionSortBy.toLowerCase()]) {
+                        return 1;
+                    }
+                    return 0;
+                }
+
+                if (this.positionsDesc) {
+                    if (typeof this.positionSortBy === "string") {
+                        return sortText(a, b);
+                    } else {
+                        return a[this.positionSortBy] - b[this.positionSortBy];
+                    }
+                } else {
+                    if (typeof this.positionSortBy === "string") {
+                        return sortText(b, a);
+                    } else {
+                        return b[this.positionSortBy] - a[this.positionSortBy];
+                    }
+                }
             }
         },
         computed: {
-            ...mapGetters(["getAllEmployees", "getAllScopes"])
+            ...mapGetters(["getAllEmployees", "getAllScopes", "getAllPositions"])
         },
         created() {
             this.fetchAllScopes();
+            this.fetchAllPositions();
         },
     };
 </script>

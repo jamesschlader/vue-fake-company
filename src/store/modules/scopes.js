@@ -17,19 +17,23 @@ const actions = {
         }));
     },
     deleteScope({ commit }, scope) {
-        commit("deleteScope", scope);
+        const response = fetch(`http://localhost:8090/scope/delete?scopeId=${scope.id}`, {
+            method: "DELETE",
+            mode: 'cors', // no-cors, *cors, same-origin
+            credentials: 'same-origin', // include, *same-origin, omit
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
+        response.then(res => res.json()).then(deleted => {
+            if (deleted) {
+                commit("deleteScope", scope);
+            } else {
+                console.log(`Failed to delete scope ${scope.name}.`)
+            }
+        });
     },
-    addScope({ commit }, content) {
-        commit("addScope", content);
-    },
-    editScope({ commit }, scope) {
-        commit("editScope", scope);
-    }
-};
-
-const mutations = {
-    setScopes: (state, scopes) => (state.scopes = scopes),
-    addScope: (state, scope) => {
+    addScope({ commit }, scope) {
         const response = fetch("http://localhost:8090/scope/create", {
             method: "POST",
             mode: 'cors', // no-cors, *cors, same-origin
@@ -39,28 +43,11 @@ const mutations = {
             },
             body: JSON.stringify(scope)
         });
-
-        response.then(res => res.json()).then(final => {
-            state.scopes.push(final);
-        });
+        response.then(res => res.json()).then(final => commit("addScope", final));
     },
-    deleteScope: (state, scope) => {
-        const response = fetch(`http://localhost:8090/scope/delete?scopeId=${scope.id}`, {
-            method: "DELETE",
-            mode: 'cors', // no-cors, *cors, same-origin
-            credentials: 'same-origin', // include, *same-origin, omit
-            headers: {
-                'Content-Type': 'application/json'
-            },
-        });
-        response.then(res => res.json()).then(final => {
-            state.scopes = state.scopes.filter(item => {
-                return item.id !== scope.id;
-            });
-        });
-    },
-    editScope: (state, scope) => {
-        fetch(`http://localhost:8090/scope/update?scopeId=${scope.id}`, {
+    editScope({ commit }, scope) {
+        console.log(`here comes the scope to edit: `, scope);
+        const response = fetch(`http://localhost:8090/scope/update?scopeId=${scope.id}`, {
             method: "PUT",
             mode: 'cors', // no-cors, *cors, same-origin
             credentials: 'same-origin', // include, *same-origin, omit
@@ -69,6 +56,17 @@ const mutations = {
             },
             body: JSON.stringify(scope)
         });
+        response.then(res => res.json()).then(final => commit("editScope", final));
+    },
+};
+
+const mutations = {
+    setScopes: (state, scopes) => (state.scopes = scopes),
+    addScope: (state, scope) => state.scopes.push(scope),
+    deleteScope: (state, scope) => state.scopes.filter(s => s.id !== scope.id),
+    editScope: (state, scope) => {
+        const index = state.scopes.findIndex(s => s.id === scope.id);
+        state.scopes[index] = scope;
     }
 };
 

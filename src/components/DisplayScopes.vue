@@ -1,26 +1,47 @@
 <template>
     <div>
-        <div v-for="scope in scopes" class="uk-display-inline-block uk-margin-large-right uk-margin-top">
-            <p
-                    class="target uk-display-inline-block uk-margin-right"
-                    v-on:click.prevent="openEdit(scope)">{{scope.name}}</p>
+        <div
+                v-for="scope in scopes"
+                class="uk-display-inline-block uk-margin-large-right uk-margin-top uk-card uk-card-body uk-card-hover"
+                v-on:click.prevent="openEdit(scope)">
+            <h3 class="uk-card-title">{{scope.name}}</h3>
+            <p>{{scope.description}}</p>
 
         </div>
 
         <div v-show="showInput">
-            <button
-                    class="uk-input uk-form-width-small uk-button-muted"
-                    v-on:click.prevent="deleteScope(selectedScope)"
-            >Delete</button>
-            <input
-                    type="text"
-                    v-model="name"
-                    v-bind:placeholder="selectedScope.name"
-                    class="uk-input uk-form-width-large">
-            <input
-                    type="submit"
-                    class="uk-input uk-form-width-small uk-button-secondary"
-                    v-on:click.prevent="saveEdit(selectedScope)">
+            <form>
+                <fieldset class="uk-fieldset uk-width-1-2">
+                    <div class="uk-margin">
+                        <input
+                                type="text"
+                                v-model="name"
+                                v-bind:placeholder="selectedScope.name"
+                                class="uk-input">
+                    </div>
+                    <div class="uk-margin">
+                        <input
+                                type="text"
+                                v-bind:placeholder="selectedScope.description"
+                                class="uk-input">
+                    </div>
+                    <div class="uk-margin ">
+                        <input
+                                type="submit"
+                                class="uk-input uk-form-width-small uk-button-secondary"
+                                v-on:click.prevent="saveEdit(selectedScope)">
+                        <button
+                                class="uk-input uk-form-width-small uk-button-default"
+                                v-on:click.prevent="showInput = false"
+                                >Cancel</button>
+                        <button
+                                class="uk-input uk-form-width-small uk-button-danger uk-float-right"
+                                v-on:click.prevent="deleteScope(selectedScope)"
+                        >Delete
+                        </button>
+                    </div>
+                </fieldset>
+            </form>
         </div>
     </div>
 </template>
@@ -30,23 +51,23 @@
     export default {
         name: "DisplayScopes",
         props: ["scopes"],
-        data(){
+        data() {
             return {
                 showInput: false,
                 name: "",
-                selectedScope: { name: ""}
-            }
+                selectedScope: { name: "", description: "" }
+            };
         },
         methods: {
             deleteScope(scope) {
-                this.$emit("delete-scope", scope)
+                this.$emit("delete-scope", scope);
                 this.showInput = !this.showInput;
             },
-            openEdit(scope){
+            openEdit(scope) {
                 this.selectedScope = scope;
-                this.showInput = true
+                this.showInput = true;
             },
-            saveEdit(scope){
+            saveEdit(scope) {
                 scope.name = this.name;
                 this.$emit("save-edit", scope);
                 this.showInput = !this.showInput;
@@ -57,19 +78,5 @@
 </script>
 
 <style scoped>
-    .box {
-        border: solid 1px black;
-        color: black;
-        background-color: red;
-        max-height: 25px;
-        padding: 6px
-    }
 
-    .box:hover {
-        cursor: pointer
-    }
-    .target:hover{
-        cursor: pointer;
-        color: #32d296;
-    }
 </style>
